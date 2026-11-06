@@ -31,6 +31,12 @@ namespace RelicTrail.NPC
         [SerializeField] private float lookAtDistance = 6.0f;
         [SerializeField] private float rotationSpeed = 4.0f;
 
+        [Header("Animation")]
+        [Tooltip("Animator Controller with natural idle animation for the NPC.")]
+        [SerializeField] private RuntimeAnimatorController npcAnimatorController;
+        [Tooltip("Humanoid Avatar for the character rig.")]
+        [SerializeField] private Avatar npcAvatar;
+
         private Transform playerTransform;
 
         public bool CanInteract => true;
@@ -39,6 +45,48 @@ namespace RelicTrail.NPC
         public void SetLinkedPortal(TeleportPortal portal)
         {
             linkedPortal = portal;
+        }
+
+        private void Awake()
+        {
+            EnsureAnimator();
+        }
+
+        public void EnsureAnimator()
+        {
+            Animator anim = GetComponentInChildren<Animator>(true);
+            if (anim == null)
+            {
+                Transform model = transform.Find("male01_1");
+                if (model == null && transform.childCount > 0)
+                {
+                    model = transform.GetChild(0);
+                }
+
+                GameObject targetObj = model != null ? model.gameObject : gameObject;
+                anim = targetObj.AddComponent<Animator>();
+            }
+
+            if (anim != null)
+            {
+                if (anim.runtimeAnimatorController == null && npcAnimatorController != null)
+                {
+                    anim.runtimeAnimatorController = npcAnimatorController;
+                }
+#if UNITY_EDITOR
+                if (anim.runtimeAnimatorController == null)
+                {
+                    anim.runtimeAnimatorController = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Animations/NPC_AnimatorController.controller");
+                }
+                if (anim.avatar == null)
+                {
+                    anim.avatar = UnityEditor.AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male01_1.fbx");
+                }
+#endif
+                anim.applyRootMotion = false;
+                anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                anim.enabled = true;
+            }
         }
 
         private void Start()

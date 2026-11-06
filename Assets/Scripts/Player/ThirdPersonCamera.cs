@@ -712,6 +712,10 @@ namespace RelicTrail.Player
             currentShoulderOffset = Mathf.Lerp(currentShoulderOffset, targetShoulder, Time.deltaTime * adsTransitionSpeed);
 
             Vector3 targetHeadOffset = isADS ? adsTargetOffset : targetOffset;
+            if (inputHandler != null && inputHandler.IsCrouching)
+            {
+                targetHeadOffset.y -= 0.40f;
+            }
             currentTargetOffset = Vector3.Lerp(currentTargetOffset, targetHeadOffset, Time.deltaTime * adsTransitionSpeed);
 
             // Focus point on the character with dynamic height & shoulder offsets

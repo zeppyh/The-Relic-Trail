@@ -76,6 +76,10 @@ namespace RelicTrail.Editor
         private const string JapaneseLanternPath = "Assets/ThirdParty/Palmov Island/Low Poly Atmospheric Locations Pack/Prefabs/Environment/japanese lantern.prefab";
         private const string ChestPath = "Assets/ThirdParty/Palmov Island/Low Poly Atmospheric Locations Pack/Prefabs/Environment/chest.prefab";
         private const string Cabin02Path = "Assets/ThirdParty/WoodsLifestyle/Prefabs/Cabins/Cabin_02.prefab";
+        // Gem Relic Prefabs
+        private const string ForestGemPrefabPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+        private const string CanyonGemPrefabPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
+        private const string FrozenGemPrefabPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
 
         // Sanctuary Assets
         private const string StairsPath = "Assets/ThirdParty/LowPolyMedievalPropsLite/Prefabs/Stairs_01.prefab";
@@ -579,46 +583,31 @@ namespace RelicTrail.Editor
             portalObj.transform.SetParent(parent);
             portalObj.transform.position = pos;
 
-            // Frame
-            GameObject frame = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            frame.name = "PortalArch";
-            frame.transform.SetParent(portalObj.transform);
-            frame.transform.localPosition = new Vector3(0f, 2f, 0f);
-            frame.transform.localScale = new Vector3(3f, 0.2f, 4f);
-            frame.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            string prefabPath = BiomePortalSetup.ForestPortalPrefabPath;
+            Color portalColor = new Color(0.2f, 1.0f, 0.4f);
 
-            // Vortex
-            GameObject vortex = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            vortex.name = "Vortex";
-            vortex.transform.SetParent(portalObj.transform);
-            vortex.transform.localPosition = new Vector3(0f, 2f, 0f);
-            vortex.transform.localScale = new Vector3(2.5f, 3.5f, 1f);
-            Object.DestroyImmediate(vortex.GetComponent<Collider>());
+            if (name.Contains("Canyon"))
+            {
+                prefabPath = BiomePortalSetup.CanyonPortalPrefabPath;
+                portalColor = new Color(1.0f, 0.55f, 0.1f);
+            }
+            else if (name.Contains("Frozen"))
+            {
+                prefabPath = BiomePortalSetup.FrozenPortalPrefabPath;
+                portalColor = new Color(0.25f, 0.85f, 1.0f);
+            }
 
-            // Light
-            GameObject lightObj = new GameObject("PortalLight");
-            lightObj.transform.SetParent(portalObj.transform);
-            lightObj.transform.localPosition = new Vector3(0f, 2f, 0f);
-            var light = lightObj.AddComponent<Light>();
-            light.color = new Color(0.2f, 0.8f, 1f);
-            light.range = 8f;
-            light.intensity = 3f;
+            AudioClip humClip = AssetDatabase.LoadAssetAtPath<AudioClip>(BiomePortalSetup.PortalHumPath);
+            AudioClip teleportClip = AssetDatabase.LoadAssetAtPath<AudioClip>(BiomePortalSetup.PortalTeleportPath);
+            AudioClip activateClip = AssetDatabase.LoadAssetAtPath<AudioClip>(BiomePortalSetup.PortalActivatePath);
 
-            // Trigger Collider
-            var boxCol = portalObj.AddComponent<BoxCollider>();
-            boxCol.isTrigger = true;
-            boxCol.center = new Vector3(0f, 2f, 0f);
-            boxCol.size = new Vector3(3f, 4f, 2f);
+            BiomePortalSetup.ConfigurePortalObject(portalObj, prefabPath, portalColor, humClip, teleportClip, activateClip);
 
-            var portal = portalObj.AddComponent<TeleportPortal>();
-
-            // Setup Serialized properties
+            var portal = portalObj.GetComponent<TeleportPortal>();
             SerializedObject so = new SerializedObject(portal);
             so.FindProperty("destinationSpawnPoint").objectReferenceValue = destSpawn;
             so.FindProperty("destinationBiome").enumValueIndex = (int)destBiome;
             so.FindProperty("destinationName").stringValue = destName;
-            so.FindProperty("activeVfx").objectReferenceValue = vortex;
-            so.FindProperty("portalLight").objectReferenceValue = light;
             so.ApplyModifiedProperties();
 
             return portal;
@@ -961,35 +950,55 @@ namespace RelicTrail.Editor
             altar.transform.localPosition = new Vector3(0f, 1.1f, 0f);
             altar.transform.localScale = new Vector3(5f, 0.6f, 5f);
 
-            // Sockets
-            GameObject s1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            // Sockets — Use gem prefabs for each biome socket
+            GameObject s1 = InstantiateAssetPrefab(ForestGemPrefabPath, altar.transform,
+                new Vector3(-0.35f, 1.2f, 0f), Quaternion.identity, Vector3.one * 0.35f);
+            if (s1 == null)
+            {
+                s1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                s1.transform.SetParent(altar.transform);
+                s1.transform.localPosition = new Vector3(-0.35f, 1.2f, 0f);
+                s1.transform.localScale = Vector3.one * 0.35f;
+                s1.GetComponent<Renderer>().material = relicMat;
+            }
             s1.name = "Socket_Forest";
-            s1.transform.SetParent(altar.transform);
-            s1.transform.localPosition = new Vector3(-0.35f, 1.2f, 0f);
-            s1.transform.localScale = Vector3.one * 0.35f;
-            s1.GetComponent<Renderer>().material = relicMat;
 
-            GameObject s2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject s2 = InstantiateAssetPrefab(CanyonGemPrefabPath, altar.transform,
+                new Vector3(0.35f, 1.2f, 0f), Quaternion.identity, Vector3.one * 0.35f);
+            if (s2 == null)
+            {
+                s2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                s2.transform.SetParent(altar.transform);
+                s2.transform.localPosition = new Vector3(0.35f, 1.2f, 0f);
+                s2.transform.localScale = Vector3.one * 0.35f;
+                s2.GetComponent<Renderer>().material = relicMat;
+            }
             s2.name = "Socket_Canyon";
-            s2.transform.SetParent(altar.transform);
-            s2.transform.localPosition = new Vector3(0.35f, 1.2f, 0f);
-            s2.transform.localScale = Vector3.one * 0.35f;
-            s2.GetComponent<Renderer>().material = relicMat;
 
-            GameObject s3 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject s3 = InstantiateAssetPrefab(FrozenGemPrefabPath, altar.transform,
+                new Vector3(0f, 1.2f, 0.35f), Quaternion.identity, Vector3.one * 0.35f);
+            if (s3 == null)
+            {
+                s3 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                s3.transform.SetParent(altar.transform);
+                s3.transform.localPosition = new Vector3(0f, 1.2f, 0.35f);
+                s3.transform.localScale = Vector3.one * 0.35f;
+                s3.GetComponent<Renderer>().material = relicMat;
+            }
             s3.name = "Socket_Frozen";
-            s3.transform.SetParent(altar.transform);
-            s3.transform.localPosition = new Vector3(0f, 1.2f, 0.35f);
-            s3.transform.localScale = Vector3.one * 0.35f;
-            s3.GetComponent<Renderer>().material = relicMat;
 
-            // Restored Lost Relic
-            GameObject restoredRelic = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            // Restored Lost Relic — Use HeartGem as the complete restored relic
+            GameObject restoredRelic = InstantiateAssetPrefab(ForestGemPrefabPath, altar.transform,
+                new Vector3(0f, 2.5f, 0f), Quaternion.identity, Vector3.one * 0.9f);
+            if (restoredRelic == null)
+            {
+                restoredRelic = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                restoredRelic.transform.SetParent(altar.transform);
+                restoredRelic.transform.localPosition = new Vector3(0f, 2.5f, 0f);
+                restoredRelic.transform.localScale = Vector3.one * 0.9f;
+                restoredRelic.GetComponent<Renderer>().material = relicMat;
+            }
             restoredRelic.name = "Complete_Lost_Relic";
-            restoredRelic.transform.SetParent(altar.transform);
-            restoredRelic.transform.localPosition = new Vector3(0f, 2.5f, 0f);
-            restoredRelic.transform.localScale = Vector3.one * 0.9f;
-            restoredRelic.GetComponent<Renderer>().material = relicMat;
 
             // Divine Light
             GameObject lightObj = new GameObject("DivineLight");
@@ -1135,13 +1144,24 @@ namespace RelicTrail.Editor
             door.transform.localScale = new Vector3(5f, 4f, 0.8f);
             door.GetComponent<Renderer>().material = doorMat;
 
-            // Relic Fragment inside chamber
-            GameObject relicObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            // Relic Fragment inside chamber — Canyon Gem Prefab
+            GameObject relicObj = InstantiateAssetPrefab(CanyonGemPrefabPath, puzzleObj.transform,
+                new Vector3(0f, 1.8f, 10f), Quaternion.identity, Vector3.one * 0.6f);
+            if (relicObj == null)
+            {
+                relicObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                relicObj.transform.SetParent(puzzleObj.transform);
+                relicObj.transform.localPosition = new Vector3(0f, 1.8f, 10f);
+                relicObj.transform.localScale = Vector3.one * 0.6f;
+                relicObj.GetComponent<Renderer>().material = relicMat;
+            }
             relicObj.name = "Canyon_Relic_Fragment";
-            relicObj.transform.SetParent(puzzleObj.transform);
-            relicObj.transform.localPosition = new Vector3(0f, 1.8f, 10f);
-            relicObj.transform.localScale = Vector3.one * 0.6f;
-            relicObj.GetComponent<Renderer>().material = relicMat;
+            if (relicObj.GetComponent<Collider>() == null)
+            {
+                var sc = relicObj.AddComponent<SphereCollider>();
+                sc.isTrigger = true;
+                sc.radius = 1.5f;
+            }
 
             var relicComp = relicObj.AddComponent<RelicFragment>();
             SerializedObject rso = new SerializedObject(relicComp);
@@ -1201,13 +1221,24 @@ namespace RelicTrail.Editor
             iceBarrier.transform.localPosition = new Vector3(0f, 1.8f, 0f);
             iceBarrier.transform.localScale = Vector3.one * 1.5f;
 
-            // Frozen Relic
-            GameObject relicObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            // Frozen Relic — Frozen Gem Prefab
+            GameObject relicObj = InstantiateAssetPrefab(FrozenGemPrefabPath, puzzleObj.transform,
+                new Vector3(0f, 1.8f, 0f), Quaternion.identity, Vector3.one * 0.6f);
+            if (relicObj == null)
+            {
+                relicObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                relicObj.transform.SetParent(puzzleObj.transform);
+                relicObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
+                relicObj.transform.localScale = Vector3.one * 0.6f;
+                relicObj.GetComponent<Renderer>().material = relicMat;
+            }
             relicObj.name = "Frozen_Relic_Fragment";
-            relicObj.transform.SetParent(puzzleObj.transform);
-            relicObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
-            relicObj.transform.localScale = Vector3.one * 0.6f;
-            relicObj.GetComponent<Renderer>().material = relicMat;
+            if (relicObj.GetComponent<Collider>() == null)
+            {
+                var sc = relicObj.AddComponent<SphereCollider>();
+                sc.isTrigger = true;
+                sc.radius = 1.5f;
+            }
 
             var relicComp = relicObj.AddComponent<RelicFragment>();
             SerializedObject rso = new SerializedObject(relicComp);

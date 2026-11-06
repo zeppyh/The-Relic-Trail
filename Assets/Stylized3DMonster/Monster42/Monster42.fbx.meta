@@ -1,14 +1,33 @@
 fileFormatVersion: 2
 guid: b7973500bed56fd41a5df2a5ae6a964c
+AssetOrigin:
+  serializedVersion: 1
+  productId: 382222
+  packageName: "Fantasy Monster Evolution Pack 40-41\u201342 \u2013 Game Ready Creatures
+    | PixeliusVita"
+  packageVersion: 1.0
+  assetPath: Assets/Stylized3DMonster/Monster42/Monster42.fbx
+  uploadId: 922960
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24501
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Monster42
+    second: {fileID: 2100000, guid: 64d096cbce648024e9fdf9d2e46a3fcb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Monster42_Armour
+    second: {fileID: 2100000, guid: 6b8ca4854b100aa43a69eed92da1b9eb, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -16,8 +35,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -58,6 +75,11 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -77,6 +99,7 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 1
   referencedClips: []
   importAnimation: 1
   humanDescription:
@@ -107,11 +130,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 382222
-  packageName: "Fantasy Monster Evolution Pack 40-41\u201342 \u2013 Game Ready Creatures
-    | PixeliusVita"
-  packageVersion: 1.0
-  assetPath: Assets/Stylized3DMonster/Monster42/Monster42.fbx
-  uploadId: 922960

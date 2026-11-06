@@ -75,7 +75,24 @@ namespace RelicTrail.Player
         [SerializeField] private string animFallingParam = "IsFalling";
         [SerializeField] private string animAimingParam = "IsAiming";
         [SerializeField] private string animShootingParam = "IsShooting";
+        [SerializeField] private string animCrouchingParam = "IsCrouching";
         [SerializeField] private string animJumpTrigger = "Jump";
+
+        [Header("Crouch Configuration")]
+        [Tooltip("Standing height for the CharacterController.")]
+        [SerializeField] private float standingHeight = 1.8f;
+
+        [Tooltip("Crouching height for the CharacterController.")]
+        [SerializeField] private float crouchHeight = 1.15f;
+
+        [Tooltip("Standing center offset for the CharacterController.")]
+        [SerializeField] private Vector3 standingCenter = new Vector3(0f, 0.9f, 0f);
+
+        [Tooltip("Crouching center offset for the CharacterController.")]
+        [SerializeField] private Vector3 crouchCenter = new Vector3(0f, 0.575f, 0f);
+
+        [Tooltip("Speed of transition between standing and crouching.")]
+        [SerializeField] private float crouchTransitionRate = 12f;
 
         // Components
         private CharacterController controller;
@@ -101,6 +118,8 @@ namespace RelicTrail.Player
         private int aimingHash;
         private int shootingHash;
         private int jumpHash;
+        private int crouchingHash;
+        private bool isCurrentlyCrouched;
         private bool hasAnimator;
 
         // Public Properties
@@ -108,6 +127,7 @@ namespace RelicTrail.Player
         public float CurrentSpeed => currentSpeed;
         public bool IsMoving => currentSpeed > 0.1f && input.MoveInput.sqrMagnitude > 0.01f;
         public bool IsSprinting => input.IsSprinting && IsMoving;
+        public bool IsCrouching => isCurrentlyCrouched;
         public bool IsDodging => false;
         public float VerticalVelocity => verticalVelocity;
         public Animator Animator => animator;
@@ -246,6 +266,7 @@ namespace RelicTrail.Player
                 if (!string.IsNullOrEmpty(animFallingParam)) fallingHash = Animator.StringToHash(animFallingParam);
                 if (!string.IsNullOrEmpty(animAimingParam)) aimingHash = Animator.StringToHash(animAimingParam);
                 if (!string.IsNullOrEmpty(animShootingParam)) shootingHash = Animator.StringToHash(animShootingParam);
+                if (!string.IsNullOrEmpty(animCrouchingParam)) crouchingHash = Animator.StringToHash(animCrouchingParam);
                 if (!string.IsNullOrEmpty(animJumpTrigger)) jumpHash = Animator.StringToHash(animJumpTrigger);
             }
         }
@@ -262,10 +283,42 @@ namespace RelicTrail.Player
 
             FindCamera();
 
+            UpdateCrouchCollider();
             CheckGround();
             HandleJumpAndGravity();
             HandleHorizontalMovement();
             UpdateAnimator();
+        }
+
+        private void UpdateCrouchCollider()
+        {
+            if (controller == null) return;
+
+            bool wantsCrouch = input != null && input.IsCrouching;
+
+            // Prevent standing up if overhead space is obstructed
+            if (!wantsCrouch && isCurrentlyCrouched && !CanUncrouch())
+            {
+                wantsCrouch = true;
+                input?.ForceCrouch(true);
+            }
+
+            isCurrentlyCrouched = wantsCrouch;
+
+            float targetH = isCurrentlyCrouched ? crouchHeight : standingHeight;
+            Vector3 targetC = isCurrentlyCrouched ? crouchCenter : standingCenter;
+
+            controller.height = Mathf.MoveTowards(controller.height, targetH, crouchTransitionRate * Time.deltaTime);
+            controller.center = Vector3.MoveTowards(controller.center, targetC, crouchTransitionRate * 0.5f * Time.deltaTime);
+        }
+
+        private bool CanUncrouch()
+        {
+            if (controller == null) return true;
+            Vector3 castOrigin = transform.position + crouchCenter;
+            float castDist = standingHeight - crouchHeight;
+            float radius = controller.radius * 0.85f;
+            return !Physics.SphereCast(castOrigin, radius, Vector3.up, out RaycastHit hit, castDist, groundLayers, QueryTriggerInteraction.Ignore);
         }
 
         private void CheckGround()
@@ -492,6 +545,11 @@ namespace RelicTrail.Player
             {
                 bool isAiming = (input != null && input.IsAimingDownSights) || (playerAttack != null && playerAttack.IsAttacking);
                 animator.SetBool(aimingHash, isAiming);
+            }
+
+            if (crouchingHash != 0)
+            {
+                animator.SetBool(crouchingHash, isCurrentlyCrouched);
             }
         }
 

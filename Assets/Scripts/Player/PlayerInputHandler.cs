@@ -52,6 +52,20 @@ namespace RelicTrail.Player
         public bool IsAimingDownSights { get; private set; }
         public bool LockOnTriggered { get; private set; }
 
+        private bool isCrouchToggled;
+
+        public void ForceCrouch(bool crouch)
+        {
+            isCrouchToggled = crouch;
+            IsCrouching = crouch;
+        }
+
+        public void ResetCrouch()
+        {
+            isCrouchToggled = false;
+            IsCrouching = false;
+        }
+
         // Backwards compatibility
         public bool AttackTriggered => LightAttackTriggered;
         public bool HeavyAttackTriggered => SuperChargedAttackTriggered;
@@ -168,7 +182,28 @@ namespace RelicTrail.Player
                 LookInput = lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
                 JumpTriggered = jumpAction != null && jumpAction.WasPressedThisFrame();
                 IsSprinting = sprintAction != null && sprintAction.IsPressed();
-                IsCrouching = crouchAction != null && crouchAction.IsPressed();
+
+                // Crouch toggle on press of C key, East button on gamepad, or crouch action
+                bool crouchPressed = (crouchAction != null && crouchAction.WasPressedThisFrame()) ||
+                                     (Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame) ||
+                                     (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame);
+
+                if (crouchPressed)
+                {
+                    isCrouchToggled = !isCrouchToggled;
+                }
+
+                // Automatically cancel crouch if player jumps or sprints forward
+                if (JumpTriggered || (IsSprinting && MoveInput.sqrMagnitude > 0.01f))
+                {
+                    isCrouchToggled = false;
+                }
+
+                bool isHoldingCrouch = (crouchAction != null && crouchAction.IsPressed()) ||
+                                       (Keyboard.current != null && (Keyboard.current.cKey.isPressed || Keyboard.current.leftCtrlKey.isPressed));
+
+                IsCrouching = isCrouchToggled || isHoldingCrouch;
+
                 InteractTriggered = (interactAction != null && (interactAction.WasPressedThisFrame() || interactAction.WasPerformedThisFrame())) ||
                                     (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
                                     (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
@@ -178,7 +213,7 @@ namespace RelicTrail.Player
                 IsAimingDownSights = (adsAction != null && adsAction.IsPressed()) ||
                                      (Mouse.current != null && Mouse.current.rightButton.isPressed);
                 LockOnTriggered = (lockOnAction != null && lockOnAction.WasPressedThisFrame()) ||
-                                  (Keyboard.current != null && Keyboard.current.leftCtrlKey.wasPressedThisFrame);
+                                  (Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame);
                 return;
             }
 
@@ -210,7 +245,18 @@ namespace RelicTrail.Player
                 // Space key: Jump
                 jump = Keyboard.current.spaceKey.wasPressedThisFrame;
                 sprint = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
-                crouch = Keyboard.current.cKey.isPressed;
+
+                if (Keyboard.current.cKey.wasPressedThisFrame)
+                {
+                    isCrouchToggled = !isCrouchToggled;
+                }
+
+                if (jump || (sprint && move.sqrMagnitude > 0.01f))
+                {
+                    isCrouchToggled = false;
+                }
+
+                crouch = isCrouchToggled || Keyboard.current.cKey.isPressed || Keyboard.current.leftCtrlKey.isPressed;
                 interact = Keyboard.current.eKey.wasPressedThisFrame;
 
                 // Q: Super Charged Attack
@@ -219,8 +265,8 @@ namespace RelicTrail.Player
                     superCharged = true;
                 }
 
-                // Left Ctrl: Lock on to enemy / release lock-on
-                if (Keyboard.current.leftCtrlKey.wasPressedThisFrame)
+                // Tab: Lock on to enemy / release lock-on
+                if (Keyboard.current.tabKey.wasPressedThisFrame)
                 {
                     lockOn = true;
                 }
@@ -255,6 +301,11 @@ namespace RelicTrail.Player
                 if (stickLook.sqrMagnitude > 0.04f) look = stickLook * 10f;
 
                 if (Gamepad.current.buttonSouth.wasPressedThisFrame) jump = true;
+                if (Gamepad.current.buttonEast.wasPressedThisFrame)
+                {
+                    isCrouchToggled = !isCrouchToggled;
+                    crouch = isCrouchToggled;
+                }
                 if (Gamepad.current.leftStickButton.isPressed) sprint = true;
                 if (Gamepad.current.buttonWest.wasPressedThisFrame) interact = true;
                 if (Gamepad.current.rightShoulder.wasPressedThisFrame) lightAttack = true;

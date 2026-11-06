@@ -21,8 +21,8 @@ namespace RelicTrail.Editor
 
         private static void RunOnce()
         {
-            if (SessionState.GetBool("BiomeMonsterSetup_V5_SnowDefaultMonster_MoreEnemies_CoinDrops_Done", false)) return;
-            SessionState.SetBool("BiomeMonsterSetup_V5_SnowDefaultMonster_MoreEnemies_CoinDrops_Done", true);
+            if (SessionState.GetBool("BiomeMonsterSetup_V12_PlayerCrouch_NPCIdle_Done", false)) return;
+            SessionState.SetBool("BiomeMonsterSetup_V12_PlayerCrouch_NPCIdle_Done", true);
             try
             {
                 BiomeMonsterSetup.RunFullSetup(false);
@@ -40,7 +40,8 @@ namespace RelicTrail.Editor
         public const string MonsterControllerPath = "Assets/Stylized3DMonster/Monster_Controller.controller";
         public const string PlayerControllerPath = "Assets/Blink/Player_AnimatorController.controller";
 
-        public const string GreenMonsterPrefabPath = "Assets/Stylized3DMonster/Monster40/Prefab/Monster40_01.prefab";
+        public const string ForestMonsterPrefabPath = "Assets/Stylized3DMonster/Monster40/Prefab/Monster40_01.prefab";
+        public const string GreenMonsterPrefabPath = ForestMonsterPrefabPath;
         public const string RedMonsterPrefabPath = "Assets/Stylized3DMonster/Monster37/Prefab/Monster37_01.prefab";
         public const string DefaultMonsterPrefabPath = "Assets/Stylized3DMonster/Monster41/Prefab/Monster41_01.prefab";
         public const string BlueMonsterPrefabPath = "Assets/Stylized3DMonster/Monster42/Prefab/Monster42_01.prefab";
@@ -93,7 +94,7 @@ namespace RelicTrail.Editor
                 EditorUtility.DisplayDialog(
                     "Setup Complete",
                     "Biome monsters and animations successfully configured!\n\n" +
-                    "• Biome 1 (Forgotten Forest): Green Monster (Monster40) with 16 beasts & 20 gold coins\n" +
+                    "• Biome 1 (Forgotten Forest): Monster 40 (Monster40_01) with 16 beasts & 20 gold coins\n" +
                     "• Biome 2 (Scorched Canyon): Red Monster (Monster37) with 8 stalkers & 18 gold coins\n" +
                     "• Biome 3 (Frozen Ruins): Default Model Monster (Monster41) with 6 guardians & 18 gold coins\n" +
                     "• All Enemies drop physical gold coins on defeat, with walk-over trigger pickup enabled!\n" +
@@ -727,11 +728,88 @@ namespace RelicTrail.Editor
                 EditorUtility.SetDirty(player);
             }
 
+            // 2.5 Process All NPCs (The Explorer & The Canyon Explorer)
+            ProcessAllNPCs(scene);
+
             // 3. Ensure required enemy counts & collectible coins for each biome
             EnsureBiomeEnemiesAndCoins(scene, monsterController);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+        }
+
+        private static void ProcessAllNPCs(UnityEngine.SceneManagement.Scene scene)
+        {
+            var npcController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Animations/NPC_AnimatorController.controller");
+            var male01Avatar = AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male01_1.fbx");
+            var male02Avatar = AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male02_1.fbx");
+            var male03Avatar = AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male03_1.fbx");
+
+            var missionNPCs = UnityEngine.Object.FindObjectsByType<RelicTrail.NPC.ExplorerMissionNPC>(FindObjectsInactive.Include);
+            foreach (var npc in missionNPCs)
+            {
+                var anim = npc.GetComponentInChildren<Animator>(true);
+                if (anim == null)
+                {
+                    Transform model = npc.transform.Find("male01_1");
+                    if (model == null && npc.transform.childCount > 0) model = npc.transform.GetChild(0);
+                    GameObject targetObj = model != null ? model.gameObject : npc.gameObject;
+                    anim = targetObj.AddComponent<Animator>();
+                }
+
+                if (anim != null)
+                {
+                    if (npcController != null) anim.runtimeAnimatorController = npcController;
+                    if (anim.avatar == null && male01Avatar != null) anim.avatar = male01Avatar;
+                    anim.applyRootMotion = false;
+                    anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    anim.enabled = true;
+                }
+
+                SerializedObject soNPC = new SerializedObject(npc);
+                var ctrlProp = soNPC.FindProperty("npcAnimatorController");
+                if (ctrlProp != null && npcController != null) ctrlProp.objectReferenceValue = npcController;
+                var avProp = soNPC.FindProperty("npcAvatar");
+                if (avProp != null && male01Avatar != null) avProp.objectReferenceValue = male01Avatar;
+                soNPC.ApplyModifiedProperties();
+
+                EditorUtility.SetDirty(npc.gameObject);
+            }
+
+            var dialogueNPCs = UnityEngine.Object.FindObjectsByType<RelicTrail.NPC.NPCDialogue>(FindObjectsInactive.Include);
+            foreach (var npc in dialogueNPCs)
+            {
+                var anim = npc.GetComponentInChildren<Animator>(true);
+                if (anim == null)
+                {
+                    Transform model = npc.transform.Find("male03_1") ?? npc.transform.Find("male02_1") ?? npc.transform.Find("male01_1");
+                    if (model == null && npc.transform.childCount > 0) model = npc.transform.GetChild(0);
+                    GameObject targetObj = model != null ? model.gameObject : npc.gameObject;
+                    anim = targetObj.AddComponent<Animator>();
+                }
+
+                Avatar chosenAvatar = (npc.name.Contains("Sage") || npc.name.Contains("Frozen")) && male03Avatar != null
+                    ? male03Avatar
+                    : ((npc.name.Contains("Canyon") && male02Avatar != null) ? male02Avatar : male01Avatar);
+
+                if (anim != null)
+                {
+                    if (npcController != null) anim.runtimeAnimatorController = npcController;
+                    if (anim.avatar == null && chosenAvatar != null) anim.avatar = chosenAvatar;
+                    anim.applyRootMotion = false;
+                    anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    anim.enabled = true;
+                }
+
+                SerializedObject soNPC = new SerializedObject(npc);
+                var ctrlProp = soNPC.FindProperty("npcAnimatorController");
+                if (ctrlProp != null && npcController != null) ctrlProp.objectReferenceValue = npcController;
+                var avProp = soNPC.FindProperty("npcAvatar");
+                if (avProp != null && chosenAvatar != null) avProp.objectReferenceValue = chosenAvatar;
+                soNPC.ApplyModifiedProperties();
+
+                EditorUtility.SetDirty(npc.gameObject);
+            }
         }
 
         private static void EnsureBiomeEnemiesAndCoins(UnityEngine.SceneManagement.Scene scene, AnimatorController monsterController)

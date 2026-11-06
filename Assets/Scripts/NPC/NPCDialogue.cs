@@ -35,10 +35,71 @@ namespace RelicTrail.NPC
         [SerializeField] private float lookAtDistance = 6.0f;
         [SerializeField] private float rotationSpeed = 4.0f;
 
+        [Header("Animation")]
+        [Tooltip("Animator Controller with natural idle animation for the NPC.")]
+        [SerializeField] private RuntimeAnimatorController npcAnimatorController;
+        [Tooltip("Humanoid Avatar for the character rig.")]
+        [SerializeField] private Avatar npcAvatar;
+
         private Transform playerTransform;
         private bool hasSpokenBefore;
 
         public bool CanInteract => true;
+
+        private void Awake()
+        {
+            EnsureAnimator();
+        }
+
+        public void EnsureAnimator()
+        {
+            Animator anim = GetComponentInChildren<Animator>(true);
+            if (anim == null)
+            {
+                Transform model = transform.Find("male03_1") ?? transform.Find("male02_1") ?? transform.Find("male01_1");
+                if (model == null && transform.childCount > 0)
+                {
+                    model = transform.GetChild(0);
+                }
+
+                GameObject targetObj = model != null ? model.gameObject : gameObject;
+                anim = targetObj.AddComponent<Animator>();
+            }
+
+            if (anim != null)
+            {
+                if (anim.runtimeAnimatorController == null && npcAnimatorController != null)
+                {
+                    anim.runtimeAnimatorController = npcAnimatorController;
+                }
+#if UNITY_EDITOR
+                if (anim.runtimeAnimatorController == null)
+                {
+                    anim.runtimeAnimatorController = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Animations/NPC_AnimatorController.controller");
+                }
+                if (anim.avatar == null)
+                {
+                    Avatar av = null;
+                    if (name.Contains("Sage") || name.Contains("Frozen"))
+                    {
+                        av = UnityEditor.AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male03_1.fbx");
+                    }
+                    else if (name.Contains("Canyon"))
+                    {
+                        av = UnityEditor.AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male02_1.fbx");
+                    }
+                    if (av == null)
+                    {
+                        av = UnityEditor.AssetDatabase.LoadAssetAtPath<Avatar>("Assets/ThirdParty/Floreswa/Models/male01_1.fbx");
+                    }
+                    anim.avatar = av;
+                }
+#endif
+                anim.applyRootMotion = false;
+                anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                anim.enabled = true;
+            }
+        }
 
         private void Start()
         {
