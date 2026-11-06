@@ -256,8 +256,16 @@ namespace RelicTrail.Editor
 
             // 1. Clean existing generated objects
             var existingWorld = GameObject.Find("--- THE LOST RELIC WORLD ---");
+            // Preserve GameCanvas if it exists so manual UI layout edits survive regeneration
+            GameObject preservedCanvas = null;
             if (existingWorld != null)
             {
+                var canvasTransform = existingWorld.transform.Find("GameCanvas");
+                if (canvasTransform != null)
+                {
+                    preservedCanvas = canvasTransform.gameObject;
+                    preservedCanvas.transform.SetParent(null); // unparent before destroying root
+                }
                 Object.DestroyImmediate(existingWorld);
             }
 
@@ -329,8 +337,17 @@ namespace RelicTrail.Editor
             // 9. Build Final Sanctuary (70m x 70m Grand Altar Courtyard)
             BuildFinalSanctuary(root.transform, sanctuaryGroundMat, relicMat);
 
-            // 10. Build Full Canvas UI
-            BuildGameUI(root.transform, uiMgr, dm);
+            // 10. Build Full Canvas UI (skip if GameCanvas already exists so manual layout edits are preserved)
+            if (preservedCanvas != null)
+            {
+                // Re-parent preserved canvas under the new root
+                preservedCanvas.transform.SetParent(root.transform);
+                Debug.Log("[WorldBuilder] Existing GameCanvas preserved — skipping UI rebuild to keep manual layout edits.");
+            }
+            else
+            {
+                BuildGameUI(root.transform, uiMgr, dm);
+            }
 
             // 11. Setup Camera
             SetupCamera(player);
