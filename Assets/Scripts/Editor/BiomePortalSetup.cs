@@ -41,7 +41,6 @@ namespace RelicTrail.Editor
         public const string PortalTeleportPath = "Assets/Audio/Portals/portal_teleport.wav";
         public const string PortalActivatePath = "Assets/Audio/Portals/portal_activate.wav";
 
-        [MenuItem("Relic Trail/Setup Biome Portals", false, 6)]
         public static void RunFullPortalSetupMenuItem()
         {
             RunFullPortalSetup(true);

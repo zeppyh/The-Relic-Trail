@@ -12,7 +12,6 @@ namespace RelicTrail.Editor
     {
         private const string CharacterPrefabPath = "Assets/ThirdParty/Floreswa/Prefabs/male01_1.prefab";
 
-        [MenuItem("Relic Trail/Setup Player and 3D Camera in Current Scene", false, 10)]
         public static void SetupPlayerAndCamera()
         {
             var activeScene = EditorSceneManager.GetActiveScene();
@@ -155,7 +154,6 @@ namespace RelicTrail.Editor
             mainCam.transform.rotation = Quaternion.Euler(10f, 0f, 0f);
         }
 
-        [MenuItem("Relic Trail/Configure & Connect All UI Buttons in Scenes", false, 15)]
         public static void ConfigureAllUIInScenesMenuItem()
         {
             ConfigureAllUIInScenes(true);

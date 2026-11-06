@@ -49,7 +49,6 @@ namespace RelicTrail.Editor
 
         public const string FloreswaFbxPath = "Assets/ThirdParty/Floreswa/Models/male01_1.fbx";
 
-        [MenuItem("Relic Trail/Setup Biome Monsters and Animations", false, 5)]
         public static void RunFullSetupMenuItem()
         {
             RunFullSetup(true);

@@ -27,7 +27,6 @@ namespace RelicTrail.Editor
             };
         }
 
-        [MenuItem("Relic Trail/🎨 Fix Pink Materials (Convert to URP Lit)", false, 20)]
         public static void FixPinkMaterialsMenuItem()
         {
             int converted = ConvertAllThirdPartyMaterials(false);

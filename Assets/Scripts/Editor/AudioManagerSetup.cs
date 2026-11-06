@@ -36,7 +36,6 @@ namespace RelicTrail.EditorTools
             EditorApplication.delayCall += RunAudioSetup;
         }
 
-        [MenuItem("Relic Trail/Auto-Fill Audio Manager Clips")]
         public static void RunAudioSetup()
         {
             if (Application.isPlaying) return;

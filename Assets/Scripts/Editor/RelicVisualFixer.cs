@@ -26,7 +26,6 @@ namespace RelicTrail.EditorTools
             EditorApplication.delayCall += RunAutoUpgrade;
         }
 
-        [MenuItem("Relic Trail/Upgrade Relics to BTM Gems")]
         public static void RunAutoUpgrade()
         {
             if (Application.isPlaying) return;

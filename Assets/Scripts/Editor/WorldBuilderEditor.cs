@@ -87,7 +87,6 @@ namespace RelicTrail.Editor
         private const string FXFirePath = "Assets/ThirdParty/LowPolyMedievalPropsLite/Prefabs/FX/FX_Fire_01.prefab";
         private const string StonePillarPath = "Assets/ThirdParty/LowPolyMedievalPropsLite/Prefabs/Stone_01.prefab";
 
-        [MenuItem("Relic Trail/Generate Complete 'The Lost Relic' Game World", false, 1)]
         public static void GenerateCompleteGameWorld()
         {
             var activeScene = EditorSceneManager.GetActiveScene();
@@ -108,7 +107,6 @@ namespace RelicTrail.Editor
             ExecuteWorldGeneration(true);
         }
 
-        [MenuItem("Relic Trail/Fix 3D Camera and Attach to Player", false, 2)]
         public static void FixCameraAndAttachToPlayer()
         {
             GameObject player = null;
@@ -193,7 +191,6 @@ namespace RelicTrail.Editor
             );
         }
 
-        [MenuItem("Relic Trail/Remove Blue Floor Overlay (Clear NavMesh)", false, 3)]
         public static void ClearNavMeshOverlay()
         {
             try
@@ -1843,22 +1840,8 @@ namespace RelicTrail.Editor
         }
     }
 
-    [InitializeOnLoad]
     public class LostRelicControlPanel : EditorWindow
     {
-        static LostRelicControlPanel()
-        {
-            EditorApplication.delayCall += () =>
-            {
-                if (!EditorApplication.isPlayingOrWillChangePlaymode)
-                {
-                    ShowWindow();
-                }
-            };
-        }
-
-        [MenuItem("Relic Trail/Show Control Panel", false, 0)]
-        [MenuItem("Window/The Lost Relic Controls", false, 100)]
         public static void ShowWindow()
         {
             var window = GetWindow<LostRelicControlPanel>("Lost Relic Controls");
