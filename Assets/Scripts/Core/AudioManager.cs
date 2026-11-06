@@ -69,7 +69,11 @@ namespace RelicTrail.Core
             {
                 GameManager.Instance.OnBiomeChanged += HandleBiomeMusic;
                 GameManager.Instance.OnGameStateChanged += HandleGameStateAudio;
-                HandleBiomeMusic(GameManager.Instance.CurrentBiome);
+
+                if (GameManager.Instance.CurrentState == GameState.Playing)
+                {
+                    HandleBiomeMusic(GameManager.Instance.CurrentBiome);
+                }
             }
         }
 
@@ -181,8 +185,24 @@ namespace RelicTrail.Core
             }
         }
 
-        public void PlayCoinPickup(Vector3 pos) => Play3DSfx(coinPickupSfx, pos, 0.8f);
-        public void PlayRelicPickup(Vector3 pos) => Play3DSfx(relicPickupSfx, pos, 1f);
+        public void PlayCoinPickup(Vector3 pos)
+        {
+            if (coinPickupSfx != null)
+            {
+                if (sfxSource != null) sfxSource.PlayOneShot(coinPickupSfx, 0.85f);
+                else AudioSource.PlayClipAtPoint(coinPickupSfx, pos, 0.85f);
+            }
+        }
+
+        public void PlayRelicPickup(Vector3 pos)
+        {
+            if (relicPickupSfx != null)
+            {
+                if (sfxSource != null) sfxSource.PlayOneShot(relicPickupSfx, 1f);
+                else AudioSource.PlayClipAtPoint(relicPickupSfx, pos, 1f);
+            }
+        }
+
         public void PlayMagicShoot(Vector3 pos)
         {
             if (magicShootSfx != null)
@@ -202,7 +222,14 @@ namespace RelicTrail.Core
         }
         public void PlayEnemyDefeat(Vector3 pos) => Play3DSfx(enemyDefeatSfx, pos, 0.9f);
         public void PlayPortalTeleport(Vector3 pos) => Play3DSfx(portalTeleportSfx, pos, 0.9f);
-        public void PlayPuzzleChime(Vector3 pos) => Play3DSfx(puzzleChimeSfx, pos, 0.85f);
+        public void PlayPuzzleChime(Vector3 pos)
+        {
+            if (puzzleChimeSfx != null)
+            {
+                if (sfxSource != null) sfxSource.PlayOneShot(puzzleChimeSfx, 0.85f);
+                else AudioSource.PlayClipAtPoint(puzzleChimeSfx, pos, 0.85f);
+            }
+        }
         public void PlayButtonClick() => PlaySfx(buttonClickSfx, 0.7f);
 
         private void HandleBiomeMusic(BiomeType biome)
@@ -232,7 +259,11 @@ namespace RelicTrail.Core
 
         private void HandleGameStateAudio(GameState state)
         {
-            if (state == GameState.Victory && victoryMusic != null)
+            if (state == GameState.Playing && GameManager.Instance != null)
+            {
+                HandleBiomeMusic(GameManager.Instance.CurrentBiome);
+            }
+            else if (state == GameState.Victory && victoryMusic != null)
             {
                 CrossfadeMusic(victoryMusic, 1.0f);
             }
