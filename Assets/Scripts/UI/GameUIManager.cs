@@ -96,31 +96,53 @@ namespace RelicTrail.UI
         }
 
         /// <summary>
-        /// Guarantees that an EventSystem with InputSystemUIInputModule exists in the scene.
+        /// Guarantees that exactly one EventSystem with a configured InputSystemUIInputModule exists in the scene.
         /// Without this, Unity UI buttons cannot receive any click or hover events with the New Input System!
         /// </summary>
         public void EnsureEventSystem()
         {
-            var es = FindObjectOfType<EventSystem>();
+            var allES = FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
+            EventSystem es = null;
+
+            for (int i = 0; i < allES.Length; i++)
+            {
+                if (i == 0)
+                {
+                    es = allES[i];
+                }
+                else
+                {
+                    // Destroy duplicate EventSystems to prevent input deadlocks in New Input System
+                    if (Application.isPlaying) Destroy(allES[i].gameObject);
+                    else DestroyImmediate(allES[i].gameObject);
+                }
+            }
+
             if (es == null)
             {
                 var esObj = new GameObject("EventSystem");
                 es = esObj.AddComponent<EventSystem>();
-                esObj.AddComponent<InputSystemUIInputModule>();
             }
-            else
+
+            var legacyModules = es.GetComponents<BaseInputModule>();
+            foreach (var m in legacyModules)
             {
-                var module = es.GetComponent<InputSystemUIInputModule>();
-                if (module == null)
+                if (m != null && !(m is InputSystemUIInputModule))
                 {
-                    var oldModule = es.GetComponent<BaseInputModule>();
-                    if (oldModule != null && !(oldModule is InputSystemUIInputModule))
-                    {
-                        if (Application.isPlaying) Destroy(oldModule);
-                        else DestroyImmediate(oldModule);
-                    }
-                    es.gameObject.AddComponent<InputSystemUIInputModule>();
+                    if (Application.isPlaying) Destroy(m);
+                    else DestroyImmediate(m);
                 }
+            }
+
+            var module = es.GetComponent<InputSystemUIInputModule>();
+            if (module == null)
+            {
+                module = es.gameObject.AddComponent<InputSystemUIInputModule>();
+            }
+
+            if (module != null && (module.actionsAsset == null || module.point == null))
+            {
+                module.AssignDefaultActions();
             }
         }
 
@@ -508,6 +530,90 @@ namespace RelicTrail.UI
                     }
                 }
             }
+
+            // 1. Maintain unlocked cursor & support Enter / Space in Main Menu
+            if (GameManager.Instance != null && GameManager.Instance.CurrentGameState == GameState.MainMenu)
+            {
+                if (Cursor.lockState != CursorLockMode.None) Cursor.lockState = CursorLockMode.None;
+                if (!Cursor.visible) Cursor.visible = true;
+
+                bool submitPressed = (UnityEngine.InputSystem.Keyboard.current != null &&
+                                     (UnityEngine.InputSystem.Keyboard.current.enterKey.wasPressedThisFrame ||
+                                      UnityEngine.InputSystem.Keyboard.current.numpadEnterKey.wasPressedThisFrame ||
+                                      UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)) ||
+                                     (UnityEngine.InputSystem.Gamepad.current != null &&
+                                      UnityEngine.InputSystem.Gamepad.current.buttonSouth.wasPressedThisFrame);
+
+                if (submitPressed && (instructionsPanel == null || !instructionsPanel.activeSelf))
+                {
+                    StartGame();
+                    return;
+                }
+            }
+
+            // 2. Direct screen-space mouse click fallback for all UI buttons
+            // Guarantees buttons are 100% clickable regardless of EventSystem, GraphicRaycaster, or Input System quirks
+            if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                Vector2 mousePos = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
+
+                // Instructions Close button
+                if (instructionsPanel != null && instructionsPanel.activeSelf)
+                {
+                    if (closeInstructionsButton != null && IsScreenPointOverRect(closeInstructionsButton.GetComponent<RectTransform>(), mousePos))
+                    {
+                        HideInstructions();
+                        return;
+                    }
+                }
+                // Main Menu buttons
+                else if (mainMenuPanel != null && mainMenuPanel.activeSelf)
+                {
+                    if (playButton != null && IsScreenPointOverRect(playButton.GetComponent<RectTransform>(), mousePos))
+                    {
+                        StartGame();
+                        return;
+                    }
+                    if (instructionsButton != null && IsScreenPointOverRect(instructionsButton.GetComponent<RectTransform>(), mousePos))
+                    {
+                        ShowInstructions();
+                        return;
+                    }
+                    if (mainMenuQuitButton != null && IsScreenPointOverRect(mainMenuQuitButton.GetComponent<RectTransform>(), mousePos))
+                    {
+                        QuitGame();
+                        return;
+                    }
+                }
+                // Pause Menu buttons
+                else if (pauseMenuPanel != null && pauseMenuPanel.activeSelf)
+                {
+                    if (resumeButton != null && IsScreenPointOverRect(resumeButton.GetComponent<RectTransform>(), mousePos)) { ResumeGame(); return; }
+                    if (pauseRestartButton != null && IsScreenPointOverRect(pauseRestartButton.GetComponent<RectTransform>(), mousePos)) { RestartGame(); return; }
+                    if (pauseMainMenuButton != null && IsScreenPointOverRect(pauseMainMenuButton.GetComponent<RectTransform>(), mousePos)) { ReturnToMainMenu(); return; }
+                    if (pauseQuitButton != null && IsScreenPointOverRect(pauseQuitButton.GetComponent<RectTransform>(), mousePos)) { QuitGame(); return; }
+                }
+                // Game Over buttons
+                else if (gameOverPanel != null && gameOverPanel.activeSelf)
+                {
+                    if (retryButton != null && IsScreenPointOverRect(retryButton.GetComponent<RectTransform>(), mousePos)) { RestartGame(); return; }
+                    if (gameOverMainMenuButton != null && IsScreenPointOverRect(gameOverMainMenuButton.GetComponent<RectTransform>(), mousePos)) { ReturnToMainMenu(); return; }
+                    if (gameOverQuitButton != null && IsScreenPointOverRect(gameOverQuitButton.GetComponent<RectTransform>(), mousePos)) { QuitGame(); return; }
+                }
+                // Victory buttons
+                else if (victoryPanel != null && victoryPanel.activeSelf)
+                {
+                    if (victoryRestartButton != null && IsScreenPointOverRect(victoryRestartButton.GetComponent<RectTransform>(), mousePos)) { RestartGame(); return; }
+                    if (victoryMainMenuButton != null && IsScreenPointOverRect(victoryMainMenuButton.GetComponent<RectTransform>(), mousePos)) { ReturnToMainMenu(); return; }
+                    if (victoryQuitButton != null && IsScreenPointOverRect(victoryQuitButton.GetComponent<RectTransform>(), mousePos)) { QuitGame(); return; }
+                }
+            }
+        }
+
+        private static bool IsScreenPointOverRect(RectTransform rect, Vector2 screenPoint)
+        {
+            if (rect == null) return false;
+            return RectTransformUtility.RectangleContainsScreenPoint(rect, screenPoint, null);
         }
 
         private void UpdateHealthBar(float current, float max)
@@ -803,6 +909,7 @@ namespace RelicTrail.UI
             t.fontSize = size;
             t.color = col;
             t.alignment = align;
+            t.raycastTarget = false;
             return obj;
         }
 

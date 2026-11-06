@@ -172,6 +172,25 @@ namespace RelicTrail.Player
             {
                 SnapToTarget();
             }
+
+            if (RelicTrail.Core.GameManager.Instance != null)
+            {
+                RelicTrail.Core.GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+                RelicTrail.Core.GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (RelicTrail.Core.GameManager.Instance != null)
+            {
+                RelicTrail.Core.GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+            }
+        }
+
+        private void HandleGameStateChanged(RelicTrail.Core.GameState state)
+        {
+            LockCursor(state == RelicTrail.Core.GameState.Playing);
         }
 
         private void Start()
@@ -197,7 +216,9 @@ namespace RelicTrail.Player
             if (Application.isPlaying)
             {
                 lastDefaultDistance = defaultDistance;
-                LockCursor(true);
+                bool shouldLock = RelicTrail.Core.GameManager.Instance == null || 
+                                  RelicTrail.Core.GameManager.Instance.CurrentGameState == RelicTrail.Core.GameState.Playing;
+                LockCursor(shouldLock);
             }
         }
 

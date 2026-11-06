@@ -1461,10 +1461,24 @@ namespace RelicTrail.Editor
             canvasObj.AddComponent<GraphicRaycaster>();
 
             // EventSystem with InputSystemUIInputModule (Crucial for button clicks in New Input System)
-            GameObject eventSystemObj = new GameObject("EventSystem");
-            eventSystemObj.transform.SetParent(parent);
-            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
-            eventSystemObj.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            var existingES = Object.FindAnyObjectByType<UnityEngine.EventSystems.EventSystem>();
+            GameObject eventSystemObj = existingES != null ? existingES.gameObject : null;
+            if (eventSystemObj == null)
+            {
+                eventSystemObj = new GameObject("EventSystem");
+                eventSystemObj.transform.SetParent(parent);
+                eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            }
+
+            var inputMod = eventSystemObj.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            if (inputMod == null)
+            {
+                inputMod = eventSystemObj.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            }
+            if (inputMod != null && (inputMod.actionsAsset == null || inputMod.point == null))
+            {
+                inputMod.AssignDefaultActions();
+            }
 
             Font defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (defaultFont == null) defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
@@ -1542,6 +1556,7 @@ namespace RelicTrail.Editor
             rectDot.sizeDelta = new Vector2(4f, 4f);
             var dotImg = dotObj.AddComponent<Image>();
             dotImg.color = new Color(1f, 1f, 1f, 0.85f);
+            dotImg.raycastTarget = false;
 
             // Top Tick
             GameObject topTick = new GameObject("Tick_Top");
@@ -1552,6 +1567,7 @@ namespace RelicTrail.Editor
             rTop.sizeDelta = new Vector2(2f, 7f);
             var imgTop = topTick.AddComponent<Image>();
             imgTop.color = new Color(1f, 1f, 1f, 0.85f);
+            imgTop.raycastTarget = false;
 
             // Bottom Tick
             GameObject botTick = new GameObject("Tick_Bottom");
@@ -1562,6 +1578,7 @@ namespace RelicTrail.Editor
             rBot.sizeDelta = new Vector2(2f, 7f);
             var imgBot = botTick.AddComponent<Image>();
             imgBot.color = new Color(1f, 1f, 1f, 0.85f);
+            imgBot.raycastTarget = false;
 
             // Left Tick
             GameObject leftTick = new GameObject("Tick_Left");
@@ -1572,6 +1589,7 @@ namespace RelicTrail.Editor
             rLeft.sizeDelta = new Vector2(7f, 2f);
             var imgLeft = leftTick.AddComponent<Image>();
             imgLeft.color = new Color(1f, 1f, 1f, 0.85f);
+            imgLeft.raycastTarget = false;
 
             // Right Tick
             GameObject rightTick = new GameObject("Tick_Right");
@@ -1582,6 +1600,7 @@ namespace RelicTrail.Editor
             rRight.sizeDelta = new Vector2(7f, 2f);
             var imgRight = rightTick.AddComponent<Image>();
             imgRight.color = new Color(1f, 1f, 1f, 0.85f);
+            imgRight.raycastTarget = false;
 
             var crosshairComp = crosshairObj.AddComponent<RelicTrail.UI.CrosshairUI>();
             crosshairComp.SetupComponents(dotImg, new Image[] { imgTop, imgBot, imgLeft, imgRight }, new RectTransform[] { rTop, rBot, rLeft, rRight });
@@ -1758,6 +1777,7 @@ namespace RelicTrail.Editor
             t.fontSize = size;
             t.color = col;
             t.alignment = align;
+            t.raycastTarget = false;
             return obj;
         }
 
