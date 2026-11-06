@@ -15,7 +15,7 @@ namespace RelicTrail.Enemies
     public class EnemyHealth : MonoBehaviour, IDamageable
     {
         [Header("Health Settings")]
-        [SerializeField] private float maxHealth = 50f;
+        [SerializeField] private float maxHealth = 70f;
         [SerializeField] private float currentHealth;
         [SerializeField] private float flashDuration = 0.12f;
 

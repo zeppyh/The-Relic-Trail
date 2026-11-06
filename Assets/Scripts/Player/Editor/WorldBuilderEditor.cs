@@ -1199,11 +1199,15 @@ namespace RelicTrail.Editor
                 plate.transform.localScale = new Vector3(1.8f, 0.1f, 1.8f);
                 var col = plate.GetComponent<Collider>();
                 col.isTrigger = true;
+                var rb = plate.AddComponent<Rigidbody>();
+                rb.isKinematic = true;
+                rb.useGravity = false;
 
                 platesList.InsertArrayElementAtIndex(i);
                 var element = platesList.GetArrayElementAtIndex(i);
                 element.FindPropertyRelative("plateName").stringValue = plateNames[i];
                 element.FindPropertyRelative("plateObject").objectReferenceValue = plate;
+                element.FindPropertyRelative("depressDepth").floatValue = 0.08f;
             }
 
             pso.ApplyModifiedProperties();
