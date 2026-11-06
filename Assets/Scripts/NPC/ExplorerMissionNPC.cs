@@ -312,6 +312,10 @@ namespace RelicTrail.NPC
             {
                 AudioSource.PlayClipAtPoint(purchaseSuccessSound, transform.position, 1.0f);
             }
+            else if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayRelicPickup(transform.position);
+            }
 
             if (relicRewardEffectPrefab != null)
             {

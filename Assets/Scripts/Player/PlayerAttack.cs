@@ -82,6 +82,7 @@ namespace RelicTrail.Player
             movement = GetComponent<PlayerMovement>();
             audioSource = GetComponent<AudioSource>();
             if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.spatialBlend = 0f; // 2D playback so player's weapon shot audio is clearly audible
 
             if (animator == null)
             {
@@ -280,11 +281,27 @@ namespace RelicTrail.Player
 
             // Firing feedback (recoil kick + muzzle flash) is handled by gunVisual; no melee punch animation.
 
-            // Play gunshot audio
-            AudioClip shotSfx = customLightShotSound ?? gunVisual?.LightShotSound;
-            if (shotSfx != null && audioSource != null)
+            // Play gunshot audio (prioritize custom override, then user-assigned AudioManager Magic Shoot SFX, then procedural gunVisual)
+            AudioClip shotSfx = customLightShotSound;
+            if (shotSfx == null && Core.AudioManager.Instance != null && Core.AudioManager.Instance.MagicShootSfx != null)
             {
-                audioSource.PlayOneShot(shotSfx, 0.85f);
+                shotSfx = Core.AudioManager.Instance.MagicShootSfx;
+            }
+            if (shotSfx == null && gunVisual != null)
+            {
+                shotSfx = gunVisual.LightShotSound;
+            }
+
+            if (shotSfx != null)
+            {
+                if (audioSource != null)
+                {
+                    audioSource.PlayOneShot(shotSfx, 0.9f);
+                }
+                else if (Core.AudioManager.Instance != null)
+                {
+                    Core.AudioManager.Instance.PlaySfx(shotSfx, 0.9f);
+                }
             }
 
             // Expand crosshair on recoil
@@ -352,10 +369,26 @@ namespace RelicTrail.Player
             Vector3 finalAimTarget = GetAimTargetPoint();
             AlignFacing(finalAimTarget);
 
-            AudioClip heavySfx = customHeavyShotSound ?? gunVisual?.HeavyShotSound;
-            if (heavySfx != null && audioSource != null)
+            AudioClip heavySfx = customHeavyShotSound;
+            if (heavySfx == null && Core.AudioManager.Instance != null && Core.AudioManager.Instance.MagicShootSfx != null)
             {
-                audioSource.PlayOneShot(heavySfx, 1.0f);
+                heavySfx = Core.AudioManager.Instance.MagicShootSfx;
+            }
+            if (heavySfx == null && gunVisual != null)
+            {
+                heavySfx = gunVisual.HeavyShotSound;
+            }
+
+            if (heavySfx != null)
+            {
+                if (audioSource != null)
+                {
+                    audioSource.PlayOneShot(heavySfx, 1.0f);
+                }
+                else if (Core.AudioManager.Instance != null)
+                {
+                    Core.AudioManager.Instance.PlaySfx(heavySfx, 1.0f);
+                }
             }
 
             // Noticeable camera shake on heavy hit blast

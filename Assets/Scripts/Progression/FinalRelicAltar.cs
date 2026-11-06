@@ -33,13 +33,80 @@ namespace RelicTrail.Progression
 
         public bool CanInteract => !isRestored;
 
+        private void Awake()
+        {
+            SetupAltarGemVisuals();
+        }
+
         private void Start()
         {
+            SetupAltarGemVisuals();
             if (completeLostRelic != null) completeLostRelic.SetActive(false);
             if (forestRelicSocket != null) forestRelicSocket.SetActive(false);
             if (canyonRelicSocket != null) canyonRelicSocket.SetActive(false);
             if (frozenRelicSocket != null) frozenRelicSocket.SetActive(false);
             if (altarDivineLight != null) altarDivineLight.enabled = false;
+        }
+
+        public void SetupAltarGemVisuals()
+        {
+            SetupSocketVisual(forestRelicSocket, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat", 0.45f);
+            SetupSocketVisual(canyonRelicSocket, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat", 0.45f);
+            SetupSocketVisual(frozenRelicSocket, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat", 0.45f);
+            SetupSocketVisual(completeLostRelic, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/DoubleDiamond.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Yellow.mat", 0.9f);
+        }
+
+        private void SetupSocketVisual(GameObject targetObj, string prefabPath, string matPath, float scale)
+        {
+            if (targetObj == null) return;
+
+            // Hide placeholder primitive sphere renderer
+            var rend = targetObj.GetComponent<MeshRenderer>();
+            if (rend != null) rend.enabled = false;
+
+            if (targetObj.transform.Find("Gem_Model") != null) return;
+
+#if UNITY_EDITOR
+            GameObject prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null)
+            {
+                prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab");
+            }
+            if (prefab != null)
+            {
+                GameObject gem = Instantiate(prefab, targetObj.transform);
+                gem.name = "Gem_Model";
+                gem.transform.localPosition = Vector3.zero;
+                gem.transform.localRotation = Quaternion.identity;
+                gem.transform.localScale = Vector3.one * scale;
+
+                foreach (var col in gem.GetComponentsInChildren<Collider>())
+                {
+                    if (Application.isPlaying) Destroy(col);
+                    else DestroyImmediate(col);
+                }
+
+                foreach (var anim in gem.GetComponentsInChildren<MonoBehaviour>())
+                {
+                    if (anim != null && anim.GetType().Name == "SimpleGemsAnim")
+                    {
+                        anim.enabled = false;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(matPath))
+                {
+                    Material mat = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(matPath);
+                    if (mat != null)
+                    {
+                        foreach (var r in gem.GetComponentsInChildren<Renderer>())
+                        {
+                            r.sharedMaterial = mat;
+                        }
+                    }
+                }
+            }
+#endif
         }
 
         public string GetInteractionPrompt()
@@ -75,6 +142,10 @@ namespace RelicTrail.Progression
             {
                 AudioSource.PlayClipAtPoint(restorationSound, transform.position, 1.0f);
             }
+            else if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPuzzleChime(transform.position);
+            }
 
             yield return new WaitForSeconds(1.0f);
 
@@ -97,6 +168,10 @@ namespace RelicTrail.Progression
             if (victoryFanfareSound != null)
             {
                 AudioSource.PlayClipAtPoint(victoryFanfareSound, transform.position, 1.0f);
+            }
+            else if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayRelicPickup(transform.position);
             }
 
             yield return new WaitForSeconds(2.0f);

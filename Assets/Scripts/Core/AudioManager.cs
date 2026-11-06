@@ -39,6 +39,17 @@ namespace RelicTrail.Core
         private AudioSource activeMusicSource;
         private Coroutine crossfadeRoutine;
 
+        // Public SFX getters so gameplay systems can access user-configured audio clips
+        public AudioClip CoinPickupSfx => coinPickupSfx;
+        public AudioClip RelicPickupSfx => relicPickupSfx;
+        public AudioClip MagicShootSfx => magicShootSfx;
+        public AudioClip MagicHitSfx => magicHitSfx;
+        public AudioClip PlayerHurtSfx => playerHurtSfx;
+        public AudioClip EnemyDefeatSfx => enemyDefeatSfx;
+        public AudioClip PortalTeleportSfx => portalTeleportSfx;
+        public AudioClip PuzzleChimeSfx => puzzleChimeSfx;
+        public AudioClip ButtonClickSfx => buttonClickSfx;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -106,6 +117,8 @@ namespace RelicTrail.Core
             if (relicPickupSfx == null) relicPickupSfx = CreateToneClip("RelicTone", 659.25f, 0.6f, true); // E5 fanfare
             if (magicShootSfx == null) magicShootSfx = CreateNoiseClip("MagicShootTone", 0.18f, 1200f);
             if (magicHitSfx == null) magicHitSfx = CreateNoiseClip("MagicHitTone", 0.2f, 400f);
+            if (playerHurtSfx == null) playerHurtSfx = CreateNoiseClip("PlayerHurtTone", 0.22f, 280f);
+            if (enemyDefeatSfx == null) enemyDefeatSfx = CreateToneClip("EnemyDefeatTone", 220f, 0.4f, false);
             if (portalTeleportSfx == null) portalTeleportSfx = CreateToneClip("PortalTone", 440f, 0.8f, true);
             if (puzzleChimeSfx == null) puzzleChimeSfx = CreateToneClip("PuzzleChime", 523.25f, 0.4f, false);
             if (buttonClickSfx == null) buttonClickSfx = CreateToneClip("ButtonClick", 800f, 0.05f, false);
@@ -170,7 +183,24 @@ namespace RelicTrail.Core
 
         public void PlayCoinPickup(Vector3 pos) => Play3DSfx(coinPickupSfx, pos, 0.8f);
         public void PlayRelicPickup(Vector3 pos) => Play3DSfx(relicPickupSfx, pos, 1f);
-        public void PlayMagicShoot(Vector3 pos) => Play3DSfx(magicShootSfx, pos, 0.7f);
+        public void PlayMagicShoot(Vector3 pos)
+        {
+            if (magicShootSfx != null)
+            {
+                if (sfxSource != null) sfxSource.PlayOneShot(magicShootSfx, 0.85f);
+                else AudioSource.PlayClipAtPoint(magicShootSfx, pos, 0.85f);
+            }
+        }
+        public void PlayMagicHit(Vector3 pos) => Play3DSfx(magicHitSfx, pos, 0.8f);
+        public void PlayPlayerHurt(Vector3 pos)
+        {
+            if (playerHurtSfx != null)
+            {
+                if (sfxSource != null) sfxSource.PlayOneShot(playerHurtSfx, 0.9f);
+                else AudioSource.PlayClipAtPoint(playerHurtSfx, pos, 0.9f);
+            }
+        }
+        public void PlayEnemyDefeat(Vector3 pos) => Play3DSfx(enemyDefeatSfx, pos, 0.9f);
         public void PlayPortalTeleport(Vector3 pos) => Play3DSfx(portalTeleportSfx, pos, 0.9f);
         public void PlayPuzzleChime(Vector3 pos) => Play3DSfx(puzzleChimeSfx, pos, 0.85f);
         public void PlayButtonClick() => PlaySfx(buttonClickSfx, 0.7f);

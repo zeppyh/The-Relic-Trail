@@ -20,6 +20,9 @@ namespace RelicTrail.Progression
         [Tooltip("The portal that activates once this relic fragment is secured.")]
         [SerializeField] private TeleportPortal linkedPortal;
 
+        [Header("3D Model Prefab")]
+        [SerializeField] private GameObject gemPrefabOverride;
+
         [Header("Visuals & Audio")]
         [SerializeField] private GameObject collectEffectPrefab;
         [SerializeField] private AudioClip collectSound;
@@ -36,6 +39,7 @@ namespace RelicTrail.Progression
         private void Awake()
         {
             SetupCollider();
+            SetupGemVisual();
         }
 
         private void OnEnable()
@@ -43,6 +47,7 @@ namespace RelicTrail.Progression
             startPosition = transform.position;
             SetupCollider();
             SetupGlowLight();
+            SetupGemVisual();
         }
 
         private void Start()
@@ -50,6 +55,108 @@ namespace RelicTrail.Progression
             startPosition = transform.position;
             SetupCollider();
             SetupGlowLight();
+            SetupGemVisual();
+        }
+
+        /// <summary>
+        /// Replaces any primitive sphere placeholder with authentic 3D BTM_Assets gems.
+        /// </summary>
+        public void SetupGemVisual()
+        {
+            // Hide or disable any primitive sphere MeshRenderer on this object
+            var selfRenderer = GetComponent<MeshRenderer>();
+            if (selfRenderer != null)
+            {
+                selfRenderer.enabled = false;
+            }
+
+            // Check if gem model child already exists
+            Transform existingGem = transform.Find("Gem_Model");
+            if (existingGem != null)
+            {
+                existingGem.gameObject.SetActive(true);
+                return;
+            }
+
+            GameObject prefabToUse = gemPrefabOverride;
+#if UNITY_EDITOR
+            if (prefabToUse == null)
+            {
+                string assetPath = GetGemPrefabPath(biome);
+                prefabToUse = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+            }
+#endif
+
+            if (prefabToUse != null)
+            {
+                GameObject gem = Instantiate(prefabToUse, transform);
+                gem.name = "Gem_Model";
+                gem.transform.localPosition = Vector3.zero;
+                gem.transform.localRotation = Quaternion.identity;
+                gem.transform.localScale = Vector3.one * 0.75f;
+
+                // Strip colliders from child so root trigger manages interaction cleanly
+                foreach (var col in gem.GetComponentsInChildren<Collider>())
+                {
+                    if (Application.isPlaying) Destroy(col);
+                    else DestroyImmediate(col);
+                }
+
+                // Disable SimpleGemsAnim so RelicFragment's synchronized bob/spin is used
+                foreach (var anim in gem.GetComponentsInChildren<MonoBehaviour>())
+                {
+                    if (anim != null && anim.GetType().Name == "SimpleGemsAnim")
+                    {
+                        anim.enabled = false;
+                    }
+                }
+
+#if UNITY_EDITOR
+                // Ensure biome themed URP material is assigned
+                string matPath = GetGemMaterialPath(biome);
+                if (!string.IsNullOrEmpty(matPath))
+                {
+                    Material mat = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(matPath);
+                    if (mat != null)
+                    {
+                        foreach (var rend in gem.GetComponentsInChildren<Renderer>())
+                        {
+                            rend.sharedMaterial = mat;
+                        }
+                    }
+                }
+#endif
+            }
+        }
+
+        public static string GetGemPrefabPath(BiomeType biomeType)
+        {
+            switch (biomeType)
+            {
+                case BiomeType.ForgottenForest:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+                case BiomeType.ScorchedCanyon:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
+                case BiomeType.FrozenRuins:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
+                default:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+            }
+        }
+
+        public static string GetGemMaterialPath(BiomeType biomeType)
+        {
+            switch (biomeType)
+            {
+                case BiomeType.ForgottenForest:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat";
+                case BiomeType.ScorchedCanyon:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat";
+                case BiomeType.FrozenRuins:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat";
+                default:
+                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Red.mat";
+            }
         }
 
         private void SetupCollider()
@@ -152,6 +259,10 @@ namespace RelicTrail.Progression
             if (collectSound != null)
             {
                 AudioSource.PlayClipAtPoint(collectSound, transform.position, 1.0f);
+            }
+            else if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayRelicPickup(transform.position);
             }
 
             Destroy(gameObject, 0.1f);

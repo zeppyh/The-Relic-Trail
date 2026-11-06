@@ -76,6 +76,12 @@ namespace RelicTrail.Player
             currentHealth = Mathf.Max(0f, currentHealth - amount);
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
+            // Play hurt SFX from AudioManager
+            if (Core.AudioManager.Instance != null)
+            {
+                Core.AudioManager.Instance.PlayPlayerHurt(transform.position);
+            }
+
             // Spawn optional hurt VFX
             if (hurtEffectPrefab != null && hitPoint != Vector3.zero)
             {

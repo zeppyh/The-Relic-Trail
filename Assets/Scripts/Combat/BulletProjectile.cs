@@ -89,6 +89,12 @@ namespace RelicTrail.Combat
                 damageable.TakeDamage(damage, hit.point, transform.forward);
             }
 
+            // Audio impact feedback
+            if (Core.AudioManager.Instance != null && Core.AudioManager.Instance.MagicHitSfx != null)
+            {
+                Core.AudioManager.Instance.PlayMagicHit(hit.point);
+            }
+
             // Spawn dynamic impact spark burst
             SpawnImpactSparks(hit.point, hit.normal);
 

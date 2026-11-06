@@ -113,6 +113,10 @@ namespace RelicTrail.Enemies
             {
                 AudioSource.PlayClipAtPoint(hitSound, transform.position, 0.7f);
             }
+            else if (AudioManager.Instance != null && AudioManager.Instance.MagicHitSfx != null)
+            {
+                AudioManager.Instance.PlayMagicHit(transform.position);
+            }
 
             // Stagger / knockback flinch reaction
             if (hitDirection != Vector3.zero)
@@ -190,6 +194,10 @@ namespace RelicTrail.Enemies
             if (deathSound != null)
             {
                 AudioSource.PlayClipAtPoint(deathSound, transform.position, 0.85f);
+            }
+            else if (AudioManager.Instance != null && AudioManager.Instance.EnemyDefeatSfx != null)
+            {
+                AudioManager.Instance.PlayEnemyDefeat(transform.position);
             }
 
             if (defeatEffectPrefab != null)
