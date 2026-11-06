@@ -33,9 +33,9 @@ namespace RelicTrail.Editor
 
     public static class BiomePortalSetup
     {
-        public const string ForestPortalPrefabPath = "Assets/Reversed Interactive/The Portal Collection/Prefabs/PortalEight.prefab";
-        public const string CanyonPortalPrefabPath = "Assets/Reversed Interactive/The Portal Collection/Prefabs/PortalTen.prefab";
-        public const string FrozenPortalPrefabPath = "Assets/Reversed Interactive/The Portal Collection/Prefabs/PortalSix.prefab";
+        public const string ForestPortalPrefabPath = "Assets/ThirdParty/Reversed Interactive/The Portal Collection/Prefabs/PortalEight.prefab";
+        public const string CanyonPortalPrefabPath = "Assets/ThirdParty/Reversed Interactive/The Portal Collection/Prefabs/PortalTen.prefab";
+        public const string FrozenPortalPrefabPath = "Assets/ThirdParty/Reversed Interactive/The Portal Collection/Prefabs/PortalSix.prefab";
 
         public const string PortalHumPath = "Assets/Audio/Portals/portal_hum.wav";
         public const string PortalTeleportPath = "Assets/Audio/Portals/portal_teleport.wav";

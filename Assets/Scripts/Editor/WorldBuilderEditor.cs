@@ -77,9 +77,9 @@ namespace RelicTrail.Editor
         private const string ChestPath = "Assets/ThirdParty/Palmov Island/Low Poly Atmospheric Locations Pack/Prefabs/Environment/chest.prefab";
         private const string Cabin02Path = "Assets/ThirdParty/WoodsLifestyle/Prefabs/Cabins/Cabin_02.prefab";
         // Gem Relic Prefabs
-        private const string ForestGemPrefabPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
-        private const string CanyonGemPrefabPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
-        private const string FrozenGemPrefabPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
+        private const string ForestGemPrefabPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+        private const string CanyonGemPrefabPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
+        private const string FrozenGemPrefabPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
 
         // Sanctuary Assets
         private const string StairsPath = "Assets/ThirdParty/LowPolyMedievalPropsLite/Prefabs/Stairs_01.prefab";

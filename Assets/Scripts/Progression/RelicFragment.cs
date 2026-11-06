@@ -134,13 +134,13 @@ namespace RelicTrail.Progression
             switch (biomeType)
             {
                 case BiomeType.ForgottenForest:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
                 case BiomeType.ScorchedCanyon:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
                 case BiomeType.FrozenRuins:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
                 default:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
             }
         }
 
@@ -149,13 +149,13 @@ namespace RelicTrail.Progression
             switch (biomeType)
             {
                 case BiomeType.ForgottenForest:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat";
                 case BiomeType.ScorchedCanyon:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat";
                 case BiomeType.FrozenRuins:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat";
                 default:
-                    return "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Red.mat";
+                    return "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Red.mat";
             }
         }
 

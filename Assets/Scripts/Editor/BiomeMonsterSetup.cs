@@ -36,15 +36,15 @@ namespace RelicTrail.Editor
 
     public static class BiomeMonsterSetup
     {
-        public const string MonsterAnimDir = "Assets/Stylized3DMonster/Anim";
-        public const string MonsterControllerPath = "Assets/Stylized3DMonster/Monster_Controller.controller";
-        public const string PlayerControllerPath = "Assets/Blink/Player_AnimatorController.controller";
+        public const string MonsterAnimDir = "Assets/ThirdParty/Stylized3DMonster/Anim";
+        public const string MonsterControllerPath = "Assets/ThirdParty/Stylized3DMonster/Monster_Controller.controller";
+        public const string PlayerControllerPath = "Assets/ThirdParty/Blink/Player_AnimatorController.controller";
 
-        public const string ForestMonsterPrefabPath = "Assets/Stylized3DMonster/Monster40/Prefab/Monster40_01.prefab";
+        public const string ForestMonsterPrefabPath = "Assets/ThirdParty/Stylized3DMonster/Monster40/Prefab/Monster40_01.prefab";
         public const string GreenMonsterPrefabPath = ForestMonsterPrefabPath;
-        public const string RedMonsterPrefabPath = "Assets/Stylized3DMonster/Monster37/Prefab/Monster37_01.prefab";
-        public const string DefaultMonsterPrefabPath = "Assets/Stylized3DMonster/Monster41/Prefab/Monster41_01.prefab";
-        public const string BlueMonsterPrefabPath = "Assets/Stylized3DMonster/Monster42/Prefab/Monster42_01.prefab";
+        public const string RedMonsterPrefabPath = "Assets/ThirdParty/Stylized3DMonster/Monster37/Prefab/Monster37_01.prefab";
+        public const string DefaultMonsterPrefabPath = "Assets/ThirdParty/Stylized3DMonster/Monster41/Prefab/Monster41_01.prefab";
+        public const string BlueMonsterPrefabPath = "Assets/ThirdParty/Stylized3DMonster/Monster42/Prefab/Monster42_01.prefab";
         public const string Coin01PrefabPath = "Assets/ThirdParty/LowPolyMedievalPropsLite/Prefabs/Coin_01.prefab";
 
         public const string FloreswaFbxPath = "Assets/ThirdParty/Floreswa/Models/male01_1.fbx";
@@ -259,15 +259,15 @@ namespace RelicTrail.Editor
             }
 
             // Ensure looping on Kevin Iglesias locomotion & aiming clips
-            string idleFbx = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Idles/HumanM@Idle01.fbx";
-            string walkFbx = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Movement/Walk/HumanM@Walk01_Forward.fbx";
-            string runFbx = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Movement/Run/HumanM@Run01_Forward.fbx";
-            string weaponHoldFbx = "Assets/Kevin Iglesias/Human Animations/Animations/Masked Poses/HumanM@WeaponHold_AssaultRifle01.fbx";
-            string aimFbx = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Combat/AssaultRifle/HumanM@AssaultRifle_Aim01.fbx";
-            string shootFbx = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Combat/AssaultRifle/HumanM@AssaultRifle_Aim01_Shoot01.fbx";
-            string jumpsFbx = "Assets/Blink/Art/Animations/Animations_Starter_Pack/Movement/Jumps.fbx";
-            string fallFbx = "Assets/Blink/Art/Animations/Animations_Starter_Pack/Movement/FallingLoop.fbx";
-            string deathFbx = "Assets/Blink/Art/Animations/Animations_Starter_Pack/Combat/Death.fbx";
+            string idleFbx = "Assets/ThirdParty/Kevin Iglesias/Human Animations/Animations/Male/Idles/HumanM@Idle01.fbx";
+            string walkFbx = "Assets/ThirdParty/Kevin Iglesias/Human Animations/Animations/Male/Movement/Walk/HumanM@Walk01_Forward.fbx";
+            string runFbx = "Assets/ThirdParty/Kevin Iglesias/Human Animations/Animations/Male/Movement/Run/HumanM@Run01_Forward.fbx";
+            string weaponHoldFbx = "Assets/ThirdParty/Kevin Iglesias/Human Animations/Animations/Masked Poses/HumanM@WeaponHold_AssaultRifle01.fbx";
+            string aimFbx = "Assets/ThirdParty/Kevin Iglesias/Human Animations/Animations/Male/Combat/AssaultRifle/HumanM@AssaultRifle_Aim01.fbx";
+            string shootFbx = "Assets/ThirdParty/Kevin Iglesias/Human Animations/Animations/Male/Combat/AssaultRifle/HumanM@AssaultRifle_Aim01_Shoot01.fbx";
+            string jumpsFbx = "Assets/ThirdParty/Blink/Art/Animations/Animations_Starter_Pack/Movement/Jumps.fbx";
+            string fallFbx = "Assets/ThirdParty/Blink/Art/Animations/Animations_Starter_Pack/Movement/FallingLoop.fbx";
+            string deathFbx = "Assets/ThirdParty/Blink/Art/Animations/Animations_Starter_Pack/Combat/Death.fbx";
 
             EnsureFbxLoopTime(idleFbx);
             EnsureFbxLoopTime(walkFbx);
@@ -397,7 +397,7 @@ namespace RelicTrail.Editor
             // -------------------------------------------------------------
             // LAYER 1: UpperBody_HoldingGun (Two-handed rifle carry, aim, shoot, IK pass)
             // -------------------------------------------------------------
-            string maskPath = "Assets/Blink/UpperBodyMask.mask";
+            string maskPath = "Assets/ThirdParty/Blink/UpperBodyMask.mask";
             var upperBodyMask = AssetDatabase.LoadAssetAtPath<AvatarMask>(maskPath);
             if (upperBodyMask == null)
             {

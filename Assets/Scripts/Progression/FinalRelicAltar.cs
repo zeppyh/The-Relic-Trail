@@ -50,10 +50,10 @@ namespace RelicTrail.Progression
 
         public void SetupAltarGemVisuals()
         {
-            SetupSocketVisual(forestRelicSocket, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat", 0.45f);
-            SetupSocketVisual(canyonRelicSocket, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat", 0.45f);
-            SetupSocketVisual(frozenRelicSocket, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat", 0.45f);
-            SetupSocketVisual(completeLostRelic, "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/DoubleDiamond.prefab", "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Yellow.mat", 0.9f);
+            SetupSocketVisual(forestRelicSocket, "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab", "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat", 0.45f);
+            SetupSocketVisual(canyonRelicSocket, "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab", "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat", 0.45f);
+            SetupSocketVisual(frozenRelicSocket, "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab", "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat", 0.45f);
+            SetupSocketVisual(completeLostRelic, "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/DoubleDiamond.prefab", "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Yellow.mat", 0.9f);
         }
 
         private void SetupSocketVisual(GameObject targetObj, string prefabPath, string matPath, float scale)
@@ -70,7 +70,7 @@ namespace RelicTrail.Progression
             GameObject prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
             if (prefab == null)
             {
-                prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab");
+                prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab");
             }
             if (prefab != null)
             {

@@ -11,15 +11,15 @@ namespace RelicTrail.EditorTools
     [InitializeOnLoad]
     public static class RelicVisualFixer
     {
-        private const string ForestGemPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
-        private const string CanyonGemPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
-        private const string FrozenGemPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
-        private const string RestoredRelicPath = "Assets/BTM_Assets/BTM_Items_Gems/Prefabs/DoubleDiamond.prefab";
+        private const string ForestGemPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/HeartGem.prefab";
+        private const string CanyonGemPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/SphereGem.prefab";
+        private const string FrozenGemPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/StarGem1.prefab";
+        private const string RestoredRelicPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Prefabs/DoubleDiamond.prefab";
 
-        private const string ForestMatPath = "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat";
-        private const string CanyonMatPath = "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat";
-        private const string FrozenMatPath = "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat";
-        private const string RestoredMatPath = "Assets/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Yellow.mat";
+        private const string ForestMatPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Green.mat";
+        private const string CanyonMatPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Orange.mat";
+        private const string FrozenMatPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Teal.mat";
+        private const string RestoredMatPath = "Assets/ThirdParty/BTM_Assets/BTM_Items_Gems/Materials/BaseMaterial_Yellow.mat";
 
         static RelicVisualFixer()
         {
