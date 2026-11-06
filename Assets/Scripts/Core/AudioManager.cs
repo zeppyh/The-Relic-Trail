@@ -31,15 +31,23 @@ namespace RelicTrail.Core
         [SerializeField] private AudioClip puzzleChimeSfx;
         [SerializeField] private AudioClip buttonClickSfx;
 
+        [Header("Biome Footstep Audio")]
+        [SerializeField] private AudioClip forestFootstepSfx;
+        [SerializeField] private AudioClip canyonFootstepSfx;
+        [SerializeField] private AudioClip frozenFootstepSfx;
+        [SerializeField] private AudioClip sanctuaryFootstepSfx;
+
         [Header("Audio Sources")]
         [SerializeField] private AudioSource musicSourceA;
         [SerializeField] private AudioSource musicSourceB;
         [SerializeField] private AudioSource sfxSource;
+        [SerializeField] private AudioSource footstepSource;
 
         private AudioSource activeMusicSource;
         private Coroutine crossfadeRoutine;
 
         // Public SFX getters so gameplay systems can access user-configured audio clips
+        public AudioClip VictoryMusic => victoryMusic;
         public AudioClip CoinPickupSfx => coinPickupSfx;
         public AudioClip RelicPickupSfx => relicPickupSfx;
         public AudioClip MagicShootSfx => magicShootSfx;
@@ -49,6 +57,10 @@ namespace RelicTrail.Core
         public AudioClip PortalTeleportSfx => portalTeleportSfx;
         public AudioClip PuzzleChimeSfx => puzzleChimeSfx;
         public AudioClip ButtonClickSfx => buttonClickSfx;
+        public AudioClip ForestFootstepSfx => forestFootstepSfx;
+        public AudioClip CanyonFootstepSfx => canyonFootstepSfx;
+        public AudioClip FrozenFootstepSfx => frozenFootstepSfx;
+        public AudioClip SanctuaryFootstepSfx => sanctuaryFootstepSfx;
 
         private void Awake()
         {
@@ -111,6 +123,14 @@ namespace RelicTrail.Core
                 sfxSource.playOnAwake = false;
             }
 
+            if (footstepSource == null)
+            {
+                footstepSource = gameObject.AddComponent<AudioSource>();
+                footstepSource.loop = false;
+                footstepSource.playOnAwake = false;
+                footstepSource.volume = 0.5f;
+            }
+
             activeMusicSource = musicSourceA;
         }
 
@@ -126,6 +146,10 @@ namespace RelicTrail.Core
             if (portalTeleportSfx == null) portalTeleportSfx = CreateToneClip("PortalTone", 440f, 0.8f, true);
             if (puzzleChimeSfx == null) puzzleChimeSfx = CreateToneClip("PuzzleChime", 523.25f, 0.4f, false);
             if (buttonClickSfx == null) buttonClickSfx = CreateToneClip("ButtonClick", 800f, 0.05f, false);
+            if (forestFootstepSfx == null) forestFootstepSfx = CreateNoiseClip("ForestStepTone", 0.08f, 180f);
+            if (canyonFootstepSfx == null) canyonFootstepSfx = CreateNoiseClip("CanyonStepTone", 0.10f, 320f);
+            if (frozenFootstepSfx == null) frozenFootstepSfx = CreateNoiseClip("FrozenStepTone", 0.08f, 850f);
+            if (sanctuaryFootstepSfx == null) sanctuaryFootstepSfx = CreateToneClip("SanctuaryStepTone", 260f, 0.06f, false);
         }
 
         private AudioClip CreateToneClip(string clipName, float frequency, float duration, bool arpeggio)
@@ -232,6 +256,43 @@ namespace RelicTrail.Core
         }
         public void PlayButtonClick() => PlaySfx(buttonClickSfx, 0.7f);
 
+        public void PlayFootstep(Vector3 pos, BiomeType biome)
+        {
+            AudioClip clip = null;
+            switch (biome)
+            {
+                case BiomeType.ForgottenForest:
+                    clip = forestFootstepSfx;
+                    break;
+                case BiomeType.ScorchedCanyon:
+                    clip = canyonFootstepSfx;
+                    break;
+                case BiomeType.FrozenRuins:
+                    clip = frozenFootstepSfx;
+                    break;
+                case BiomeType.FinalSanctuary:
+                    clip = sanctuaryFootstepSfx;
+                    break;
+            }
+
+            if (clip != null)
+            {
+                if (footstepSource != null)
+                {
+                    footstepSource.pitch = Random.Range(0.92f, 1.08f);
+                    footstepSource.PlayOneShot(clip, 0.45f);
+                }
+                else if (sfxSource != null)
+                {
+                    sfxSource.PlayOneShot(clip, 0.45f);
+                }
+                else
+                {
+                    AudioSource.PlayClipAtPoint(clip, pos, 0.45f);
+                }
+            }
+        }
+
         private void HandleBiomeMusic(BiomeType biome)
         {
             AudioClip targetTrack = null;
@@ -263,15 +324,50 @@ namespace RelicTrail.Core
             {
                 HandleBiomeMusic(GameManager.Instance.CurrentBiome);
             }
-            else if (state == GameState.Victory && victoryMusic != null)
+            else if (state == GameState.Victory)
             {
-                CrossfadeMusic(victoryMusic, 1.0f);
+                PlayVictoryAudio();
+            }
+        }
+
+        public void PlayVictoryAudio()
+        {
+            if (crossfadeRoutine != null)
+            {
+                StopCoroutine(crossfadeRoutine);
+                crossfadeRoutine = null;
+            }
+
+            if (musicSourceA != null)
+            {
+                musicSourceA.Stop();
+                musicSourceA.volume = 0f;
+            }
+            if (musicSourceB != null)
+            {
+                musicSourceB.Stop();
+                musicSourceB.volume = 0f;
+            }
+
+            if (victoryMusic != null)
+            {
+                if (sfxSource != null)
+                {
+                    sfxSource.PlayOneShot(victoryMusic, 0.95f);
+                }
+                else if (musicSourceA != null)
+                {
+                    musicSourceA.clip = victoryMusic;
+                    musicSourceA.loop = false;
+                    musicSourceA.volume = 0.95f;
+                    musicSourceA.Play();
+                }
             }
         }
 
         public void CrossfadeMusic(AudioClip newClip, float duration = 1.5f)
         {
-            if (newClip == null || activeMusicSource.clip == newClip) return;
+            if (newClip == null || (activeMusicSource != null && activeMusicSource.clip == newClip)) return;
 
             if (crossfadeRoutine != null) StopCoroutine(crossfadeRoutine);
             crossfadeRoutine = StartCoroutine(CrossfadeRoutine(newClip, duration));
@@ -293,7 +389,7 @@ namespace RelicTrail.Core
                 float t = elapsed / duration;
                 fadingOut.volume = Mathf.Lerp(maxVolume, 0f, t);
                 fadingIn.volume = Mathf.Lerp(0f, maxVolume, t);
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
 

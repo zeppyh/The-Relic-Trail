@@ -28154,13 +28154,18 @@ MonoBehaviour:
   magicShootSfx: {fileID: 8300000, guid: 10ef3a564da83a342a30cfc8052bb1da, type: 3}
   magicHitSfx: {fileID: 8300000, guid: b1111111222233334444555566667703, type: 3}
   playerHurtSfx: {fileID: 8300000, guid: 8e66e8a4abe59bb45a1efbf5185cd1fa, type: 3}
-  enemyDefeatSfx: {fileID: 8300000, guid: b70d8fe8b89d8d14eb8619b240203264, type: 3}
+  enemyDefeatSfx: {fileID: 8300000, guid: 19f1c0a59c530ad4ba7166c5ab036451, type: 3}
   portalTeleportSfx: {fileID: 8300000, guid: a1111111222233334444555566667702, type: 3}
   puzzleChimeSfx: {fileID: 8300000, guid: b1111111222233334444555566667704, type: 3}
   buttonClickSfx: {fileID: 8300000, guid: db5aae43cbbeed9439d77b9ecc6c50f2, type: 3}
+  forestFootstepSfx: {fileID: 8300000, guid: b1111111222233334444555566667711, type: 3}
+  canyonFootstepSfx: {fileID: 8300000, guid: d7ec067012e977d4f9d4bc2b6ad6071e, type: 3}
+  frozenFootstepSfx: {fileID: 8300000, guid: b1111111222233334444555566667713, type: 3}
+  sanctuaryFootstepSfx: {fileID: 8300000, guid: b1111111222233334444555566667714, type: 3}
   musicSourceA: {fileID: 864951680}
   musicSourceB: {fileID: 864951681}
   sfxSource: {fileID: 864951682}
+  footstepSource: {fileID: 0}
 --- !u!114 &864951678
 MonoBehaviour:
   m_ObjectHideFlags: 0

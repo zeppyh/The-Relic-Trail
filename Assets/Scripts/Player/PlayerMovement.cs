@@ -94,6 +94,16 @@ namespace RelicTrail.Player
         [Tooltip("Speed of transition between standing and crouching.")]
         [SerializeField] private float crouchTransitionRate = 12f;
 
+        [Header("Footsteps")]
+        [Tooltip("Interval between footsteps when walking (in seconds).")]
+        [SerializeField] private float walkStepInterval = 0.44f;
+
+        [Tooltip("Interval between footsteps when sprinting (in seconds).")]
+        [SerializeField] private float sprintStepInterval = 0.32f;
+
+        [Tooltip("Interval between footsteps when crouching (in seconds).")]
+        [SerializeField] private float crouchStepInterval = 0.60f;
+
         // Components
         private CharacterController controller;
         private PlayerInputHandler input;
@@ -108,6 +118,7 @@ namespace RelicTrail.Player
         private float rotationVelocity;
         private float coyoteTimer;
         private float jumpBufferTimer;
+        private float footstepTimer;
         private bool isGrounded;
 
         // Hash IDs for Animator parameters
@@ -287,6 +298,7 @@ namespace RelicTrail.Player
             CheckGround();
             HandleJumpAndGravity();
             HandleHorizontalMovement();
+            HandleFootsteps();
             UpdateAnimator();
         }
 
@@ -498,6 +510,36 @@ namespace RelicTrail.Player
             // Combine horizontal motion and vertical velocity
             Vector3 velocity = (moveDirection * currentSpeed) + (Vector3.up * verticalVelocity);
             controller.Move(velocity * Time.deltaTime);
+        }
+
+        private void HandleFootsteps()
+        {
+            if (!isGrounded || currentSpeed < 0.5f || (input != null && input.MoveInput.sqrMagnitude < 0.01f))
+            {
+                footstepTimer = 0.15f;
+                return;
+            }
+
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
+            {
+                float interval = walkStepInterval;
+                if (IsCrouching) interval = crouchStepInterval;
+                else if (IsSprinting) interval = sprintStepInterval;
+
+                footstepTimer = interval;
+
+                RelicTrail.Core.BiomeType currentBiome = RelicTrail.Core.BiomeType.ForgottenForest;
+                if (RelicTrail.Core.GameManager.Instance != null)
+                {
+                    currentBiome = RelicTrail.Core.GameManager.Instance.CurrentBiome;
+                }
+
+                if (RelicTrail.Core.AudioManager.Instance != null)
+                {
+                    RelicTrail.Core.AudioManager.Instance.PlayFootstep(transform.position, currentBiome);
+                }
+            }
         }
 
         private void UpdateAnimator()
