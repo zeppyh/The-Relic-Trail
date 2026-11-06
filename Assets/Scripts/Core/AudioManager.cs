@@ -70,7 +70,7 @@ namespace RelicTrail.Core
                 GameManager.Instance.OnBiomeChanged += HandleBiomeMusic;
                 GameManager.Instance.OnGameStateChanged += HandleGameStateAudio;
 
-                if (GameManager.Instance.CurrentState == GameState.Playing)
+                if (GameManager.Instance.CurrentGameState == GameState.Playing)
                 {
                     HandleBiomeMusic(GameManager.Instance.CurrentBiome);
                 }
