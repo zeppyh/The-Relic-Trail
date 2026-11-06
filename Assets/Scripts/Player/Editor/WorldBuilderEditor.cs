@@ -254,19 +254,19 @@ namespace RelicTrail.Editor
             // 0. Ensure all materials are upgraded to URP Lit (fixes any pink/magenta assets)
             URPMaterialConverter.ConvertAllThirdPartyMaterials(true);
 
-            // 1. Clean existing generated objects
+            // 1. Check if the world already exists — if so, preserve everything
             var existingWorld = GameObject.Find("--- THE LOST RELIC WORLD ---");
-            // Preserve GameCanvas if it exists so manual UI layout edits survive regeneration
-            GameObject preservedCanvas = null;
             if (existingWorld != null)
             {
-                var canvasTransform = existingWorld.transform.Find("GameCanvas");
-                if (canvasTransform != null)
-                {
-                    preservedCanvas = canvasTransform.gameObject;
-                    preservedCanvas.transform.SetParent(null); // unparent before destroying root
-                }
-                Object.DestroyImmediate(existingWorld);
+                Debug.Log("[WorldBuilder] World already exists — all objects, animations, and customizations are preserved. Delete '--- THE LOST RELIC WORLD ---' from Hierarchy first if you want a full rebuild.");
+                EditorUtility.DisplayDialog(
+                    "World Already Exists",
+                    "The game world already exists in the scene. All your manual changes (animations, monsters, NPCs, UI, decorations) are preserved.\n\n" +
+                    "If you want a FULL regeneration from scratch:\n" +
+                    "1. Delete '--- THE LOST RELIC WORLD ---' from the Hierarchy\n" +
+                    "2. Then run Generate again",
+                    "OK — Keep My Changes");
+                return;
             }
 
             // Remove/disable conflicting stray Terrains from template scenes
@@ -337,17 +337,8 @@ namespace RelicTrail.Editor
             // 9. Build Final Sanctuary (70m x 70m Grand Altar Courtyard)
             BuildFinalSanctuary(root.transform, sanctuaryGroundMat, relicMat);
 
-            // 10. Build Full Canvas UI (skip if GameCanvas already exists so manual layout edits are preserved)
-            if (preservedCanvas != null)
-            {
-                // Re-parent preserved canvas under the new root
-                preservedCanvas.transform.SetParent(root.transform);
-                Debug.Log("[WorldBuilder] Existing GameCanvas preserved — skipping UI rebuild to keep manual layout edits.");
-            }
-            else
-            {
-                BuildGameUI(root.transform, uiMgr, dm);
-            }
+            // 10. Build Full Canvas UI
+            BuildGameUI(root.transform, uiMgr, dm);
 
             // 11. Setup Camera
             SetupCamera(player);
