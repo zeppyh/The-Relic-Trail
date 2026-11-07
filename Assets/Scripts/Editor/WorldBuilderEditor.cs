@@ -225,7 +225,8 @@ namespace RelicTrail.Editor
 
         public static void BuildWindowsPlayer()
         {
-            string buildPath = "Builds/Windows/TheLostRelic.exe";
+            string buildFolder = "Builds/TheRelicTrail_Build";
+            string buildPath = System.IO.Path.Combine(buildFolder, "TheRelicTrail.exe");
             string[] scenes = new string[] { "Assets/Scenes/SampleScene.unity" };
             BuildPlayerOptions options = new BuildPlayerOptions();
             options.scenes = scenes;
